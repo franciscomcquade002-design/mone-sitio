@@ -1177,13 +1177,14 @@ footer .logo{color:var(--ink);margin-bottom:12px}
     </ol>
     <p class="mailto">contacto@monemethod.com<small><span data-l="es">Antes de proponer nada, nos gusta entender.</span><span data-l="en">Before proposing anything, we like to understand.</span></small></p>
   </div>
-  <form id="form" novalidate>
-    <div class="frow"><label><span data-l="es">Nombre</span><span data-l="en">Name</span><input id="f-name" autocomplete="name"></label><label><span data-l="es">Correo</span><span data-l="en">Email</span><input id="f-mail" type="email" autocomplete="email"></label></div>
-    <label><span data-l="es">Organización o sistema</span><span data-l="en">Organization or system</span><input id="f-org"></label>
-    <label><span data-l="es">¿Qué les gustaría lograr?</span><span data-l="en">What would you like to achieve?</span><select id="f-goal"></select></label>
-    <label><span data-l="es">Cuéntenos un poco más</span><span data-l="en">Tell us a bit more</span><textarea id="f-msg"></textarea></label>
+  <form id="form" name="contacto" method="POST" data-netlify="true" netlify-honeypot="bot-field" novalidate>
+    <input type="hidden" name="form-name" value="contacto"><p hidden><label>No llenar<input name="bot-field"></label></p>
+    <div class="frow"><label><span data-l="es">Nombre</span><span data-l="en">Name</span><input id="f-name" name="nombre" autocomplete="name" required></label><label><span data-l="es">Correo</span><span data-l="en">Email</span><input id="f-mail" name="correo" type="email" autocomplete="email" required></label></div>
+    <label><span data-l="es">Organización o sistema</span><span data-l="en">Organization or system</span><input id="f-org" name="organizacion"></label>
+    <label><span data-l="es">¿Qué les gustaría lograr?</span><span data-l="en">What would you like to achieve?</span><select id="f-goal" name="objetivo"></select></label>
+    <label><span data-l="es">Cuéntenos un poco más</span><span data-l="en">Tell us a bit more</span><textarea id="f-msg" name="mensaje"></textarea></label>
     <button class="btn d" type="submit"><span data-l="es">Enviar</span><span data-l="en">Send</span></button>
-    <p class="ok" id="ok" role="status"><span data-l="es">Prototipo: el formulario aún no está conectado a monemethod.com.</span><span data-l="en">Prototype: the form is not yet connected to monemethod.com.</span></p>
+    <p class="ok" id="ok" role="status"><span data-l="es">Gracias, recibimos tu mensaje. Te responderemos pronto.</span><span data-l="en">Thank you, we received your message. We will reply soon.</span></p>
   </form>
 </div></section>
 </main>
@@ -1291,7 +1292,13 @@ const onS=()=>nav.classList.toggle('solid',scrollY>window.innerHeight*.5||views.
 addEventListener('hashchange',route);route();
 $('fq').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const it=b.parentNode,on=!it.classList.contains('open');it.classList.toggle('open',on);b.setAttribute('aria-expanded',on)});
 $('menu').addEventListener('click',()=>{const o=nav.classList.toggle('open');$('menu').setAttribute('aria-expanded',o)});
-$('form').addEventListener('submit',e=>{e.preventDefault();$('ok').style.display='block'});
+$('form').addEventListener('submit',e=>{e.preventDefault();const f=e.target;
+ if(!f.nombre.value.trim()||!f.correo.checkValidity()){(f.nombre.value.trim()?f.correo:f.nombre).focus();f.reportValidity();return}
+ const v=n=>f[n].value.trim();
+ const txt=(L==='en'?'Hello Mone, I am writing from monemethod.com':'Hola Mone, les escribo desde monemethod.com')+'\n\n'+(L==='en'?'Name: ':'Nombre: ')+v('nombre')+'\n'+(L==='en'?'Email: ':'Correo: ')+v('correo')+(v('organizacion')?'\n'+(L==='en'?'Organization: ':'Organización: ')+v('organizacion'):'')+'\n'+(L==='en'?'Goal: ':'Objetivo: ')+v('objetivo')+(v('mensaje')?'\n\n'+v('mensaje'):'');
+ window.open('https://wa.me/528120446370?text='+encodeURIComponent(txt),'_blank','noopener');
+ fetch('/',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams(new FormData(f)).toString()}).finally(()=>{$('ok').style.display='block';f.reset()});
+});
 if(matchMedia('(prefers-reduced-motion: reduce)').matches)document.querySelectorAll('video').forEach(v=>{v.removeAttribute('autoplay');v.pause()});
 }
 </script>
